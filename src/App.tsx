@@ -5,7 +5,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Fuel, Timer, Flame, MapPin, Trophy, AlertTriangle, Heart } from 'lucide-react';
+import { Fuel, Timer, Flame, MapPin, Trophy, AlertTriangle, Heart, Maximize, Minimize, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 
 // --- Assets ---
 const panchitosSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"><defs><linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#e6c27a" /><stop offset="50%" stop-color="#fff0b3" /><stop offset="100%" stop-color="#d4af37" /></linearGradient></defs><path d="M5,0 L95,0 C85,40 85,100 95,140 L5,140 C15,100 15,40 5,0 Z" fill="url(#gold)" /><g transform="translate(5,0)"><rect x="0" y="0" width="10" height="15" fill="#cc0000" rx="2"/><rect x="10" y="0" width="10" height="15" fill="#ffffff" rx="2"/><rect x="20" y="0" width="10" height="15" fill="#000066" rx="2"/><rect x="30" y="0" width="10" height="15" fill="#cc0000" rx="2"/><rect x="40" y="0" width="10" height="15" fill="#ffffff" rx="2"/><rect x="50" y="0" width="10" height="15" fill="#000066" rx="2"/><rect x="60" y="0" width="10" height="15" fill="#cc0000" rx="2"/><rect x="70" y="0" width="10" height="15" fill="#ffffff" rx="2"/><rect x="80" y="0" width="10" height="15" fill="#000066" rx="2"/></g><g transform="translate(5,125)"><rect x="0" y="0" width="10" height="15" fill="#cc0000" rx="2"/><rect x="10" y="0" width="10" height="15" fill="#ffffff" rx="2"/><rect x="20" y="0" width="10" height="15" fill="#000066" rx="2"/><rect x="30" y="0" width="10" height="15" fill="#cc0000" rx="2"/><rect x="40" y="0" width="10" height="15" fill="#ffffff" rx="2"/><rect x="50" y="0" width="10" height="15" fill="#000066" rx="2"/><rect x="60" y="0" width="10" height="15" fill="#cc0000" rx="2"/><rect x="70" y="0" width="10" height="15" fill="#ffffff" rx="2"/><rect x="80" y="0" width="10" height="15" fill="#000066" rx="2"/></g><ellipse cx="35" cy="25" rx="20" ry="10" fill="#000066" /><text x="35" y="29" fill="#fff" font-family="cursive, sans-serif" font-size="10" font-style="italic" text-anchor="middle">Carli</text><text x="50" y="65" fill="#ff3333" stroke="#fff" stroke-width="1.5" font-family="sans-serif" font-size="18" font-weight="900" text-anchor="middle">Panchitos</text><path d="M25,120 C25,80 75,80 75,120 Z" fill="#000066" /><path d="M25,105 C10,105 10,75 30,85 C20,90 25,100 25,105 Z" fill="#ffff00" stroke="#000" stroke-width="0.5"/><path d="M75,105 C90,105 90,75 70,85 C80,90 75,100 75,105 Z" fill="#ffff00" stroke="#000" stroke-width="0.5"/><path d="M50,85 L45,115 L55,115 Z" fill="#ffffff" /></svg>`;
@@ -75,8 +75,10 @@ export default function App() {
   const [speed, setSpeed] = useState(0);
   const [distance, setDistance] = useState(0);
   const [showComodin, setShowComodin] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Game Loop Refs
+  const containerRef = useRef<HTMLDivElement>(null);
   const requestRef = useRef<number>(null);
   const playerRef = useRef({ x: CANVAS_WIDTH / 2 - PLAYER_WIDTH / 2, y: CANVAS_HEIGHT - 120 });
   const keysRef = useRef<{ [key: string]: boolean }>({});
@@ -144,6 +146,27 @@ export default function App() {
     obstaclesRef.current = [];
     itemsRef.current = [];
     playerRef.current = { x: CANVAS_WIDTH / 2 - PLAYER_WIDTH / 2, y: CANVAS_HEIGHT - 120 };
+  };
+
+  const toggleFullscreen = () => {
+    if (!containerRef.current) return;
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
+  const handleControlStart = (key: string) => {
+    keysRef.current[key] = true;
+  };
+
+  const handleControlEnd = (key: string) => {
+    keysRef.current[key] = false;
   };
 
   const nextLevel = useCallback(() => {
@@ -579,9 +602,18 @@ export default function App() {
   }, [update, draw]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 font-sans">
-      <div className="relative bg-zinc-900 rounded-3xl overflow-hidden shadow-2xl border-4 border-zinc-800">
+    <div className={`min-h-screen flex flex-col items-center justify-center p-4 font-sans ${isFullscreen ? 'bg-zinc-950 text-white overflow-hidden' : ''}`} ref={containerRef}>
+      <div className="relative bg-zinc-900 rounded-3xl overflow-hidden shadow-2xl border-4 border-zinc-800 max-w-full">
         
+        {/* Fullscreen Toggle (Mobile Only) */}
+        <button 
+          onClick={toggleFullscreen}
+          className="absolute top-4 right-4 z-20 p-2 bg-black/40 backdrop-blur-md rounded-full border border-white/10 hover:bg-black/60 transition-all pointer-events-auto md:hidden"
+          title="Toggle Fullscreen"
+        >
+          {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
+        </button>
+
         {/* HUD */}
         <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start z-10 pointer-events-none">
           <div className="space-y-2">
@@ -780,6 +812,59 @@ export default function App() {
             animate={{ width: `${(levelTimeRef.current / LEVEL_DURATION) * 100}%` }}
           />
         </div>
+
+        {/* Mobile Controls */}
+        {gameState === GameState.PLAYING && (
+          <div className="absolute bottom-12 left-0 right-0 px-6 flex justify-between items-end z-20 pointer-events-none md:hidden">
+            {/* Left/Right Controls */}
+            <div className="flex gap-4 pointer-events-auto">
+              <button 
+                onMouseDown={() => handleControlStart('a')}
+                onMouseUp={() => handleControlEnd('a')}
+                onMouseLeave={() => handleControlEnd('a')}
+                onTouchStart={() => handleControlStart('a')}
+                onTouchEnd={() => handleControlEnd('a')}
+                className="w-16 h-16 bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 flex items-center justify-center active:scale-90 transition-transform"
+              >
+                <ChevronLeft className="w-8 h-8" />
+              </button>
+              <button 
+                onMouseDown={() => handleControlStart('d')}
+                onMouseUp={() => handleControlEnd('d')}
+                onMouseLeave={() => handleControlEnd('d')}
+                onTouchStart={() => handleControlStart('d')}
+                onTouchEnd={() => handleControlEnd('d')}
+                className="w-16 h-16 bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 flex items-center justify-center active:scale-90 transition-transform"
+              >
+                <ChevronRight className="w-8 h-8" />
+              </button>
+            </div>
+
+            {/* Accel/Brake Controls */}
+            <div className="flex flex-col gap-4 pointer-events-auto">
+              <button 
+                onMouseDown={() => handleControlStart('w')}
+                onMouseUp={() => handleControlEnd('w')}
+                onMouseLeave={() => handleControlEnd('w')}
+                onTouchStart={() => handleControlStart('w')}
+                onTouchEnd={() => handleControlEnd('w')}
+                className="w-16 h-16 bg-emerald-500/40 backdrop-blur-md rounded-2xl border border-emerald-500/20 flex items-center justify-center active:scale-90 transition-transform"
+              >
+                <ChevronUp className="w-8 h-8 text-emerald-400" />
+              </button>
+              <button 
+                onMouseDown={() => handleControlStart('s')}
+                onMouseUp={() => handleControlEnd('s')}
+                onMouseLeave={() => handleControlEnd('s')}
+                onTouchStart={() => handleControlStart('s')}
+                onTouchEnd={() => handleControlEnd('s')}
+                className="w-16 h-16 bg-red-500/40 backdrop-blur-md rounded-2xl border border-red-500/20 flex items-center justify-center active:scale-90 transition-transform"
+              >
+                <ChevronDown className="w-8 h-8 text-red-400" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Narrative Footer */}
