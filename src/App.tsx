@@ -256,8 +256,8 @@ export default function App() {
     if (effectiveSpeed > 0) {
       if (gameState === GameState.PLAYING) {
         const maxSpeedRef = level === Level.NORMAL ? 3 : level === Level.DESTAPADA ? 2.5 : 4;
-        if (keysRef.current['a']) playerRef.current.x -= 4 * (effectiveSpeed / maxSpeedRef + 0.5); // increased steering
-        if (keysRef.current['d']) playerRef.current.x += 4 * (effectiveSpeed / maxSpeedRef + 0.5); // increased steering
+        if (keysRef.current['a']) playerRef.current.x -= 5 * (effectiveSpeed / maxSpeedRef + 0.5); // increased steering
+        if (keysRef.current['d']) playerRef.current.x += 5 * (effectiveSpeed / maxSpeedRef + 0.5); // increased steering
       }
 
       // Road Curving Logic
@@ -845,9 +845,9 @@ export default function App() {
             {/* Steering Wheel Control */}
             <div className="pointer-events-auto">
               <motion.div 
-                className="relative w-36 h-36"
-                animate={{ rotate: activeControls['a'] ? -45 : activeControls['d'] ? 45 : 0 }}
-                transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                className="relative w-28 h-28"
+                animate={{ rotate: activeControls['a'] ? -90 : activeControls['d'] ? 90 : 0 }}
+                transition={{ type: 'spring', stiffness: 250, damping: 20 }}
               >
                 <img src={steeringWheelImg.src} className="w-full h-full object-contain drop-shadow-2xl" />
                 <div className="absolute inset-0 flex">
@@ -855,16 +855,16 @@ export default function App() {
                     onMouseDown={() => handleControlStart('a')}
                     onMouseUp={() => handleControlEnd('a')}
                     onMouseLeave={() => handleControlEnd('a')}
-                    onTouchStart={() => handleControlStart('a')}
-                    onTouchEnd={() => handleControlEnd('a')}
+                    onTouchStart={(e) => { e.preventDefault(); handleControlStart('a'); }}
+                    onTouchEnd={(e) => { e.preventDefault(); handleControlEnd('a'); }}
                     className="w-1/2 h-full rounded-l-full"
                   />
                   <button 
                     onMouseDown={() => handleControlStart('d')}
                     onMouseUp={() => handleControlEnd('d')}
                     onMouseLeave={() => handleControlEnd('d')}
-                    onTouchStart={() => handleControlStart('d')}
-                    onTouchEnd={() => handleControlEnd('d')}
+                    onTouchStart={(e) => { e.preventDefault(); handleControlStart('d'); }}
+                    onTouchEnd={(e) => { e.preventDefault(); handleControlEnd('d'); }}
                     className="w-1/2 h-full rounded-r-full"
                   />
                 </div>
