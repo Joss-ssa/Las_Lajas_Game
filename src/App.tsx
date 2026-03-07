@@ -31,6 +31,29 @@ shrineImg.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(shrineSvg
 const playerCarImg = new Image();
 playerCarImg.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(playerCarSvg)}`;
 
+const steeringWheelSvg = `<svg viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="cammo" patternUnits="userSpaceOnUse" width="1000" height="1000">
+      <rect width="1000" height="1000" fill="#b0a378" />
+      <path d="M0 0 L500 500 L1000 0 Z" fill="#9e8e58" />
+      <path d="M1000 0 L500 500 L1000 1000 Z" fill="#706850" />
+      <path d="M1000 1000 L500 500 L0 1000 Z" fill="#a09880" />
+      <path d="M0 1000 L500 500 L0 0 Z" fill="#605c48" />
+      <path d="M200 200 Q 500 100 800 200 T 500 300 Z" fill="#9e8e58" opacity="0.4" />
+      <path d="M200 800 Q 500 900 800 800 T 500 700 Z" fill="#706850" opacity="0.4" />
+    </pattern>
+  </defs>
+  <path d="M500 0C223.9 0 0 223.9 0 500s223.9 500 500 500 500-223.9 500-500S776.1 0 500 0zm0 80c231.9 0 420 188.1 420 420S731.9 920 500 920 80 731.9 80 500 268.1 80 500 80z" fill="url(#cammo)" />
+  <circle cx="500" cy="500" r="100" fill="url(#cammo)" />
+  <path d="M500 400 L150 200 C250 100 750 100 850 200 L500 400 Z" fill="url(#cammo)" />
+  <path d="M430 550 L150 800 C100 700 100 600 150 500 L430 550 Z" fill="url(#cammo)" />
+  <path d="M570 550 L850 800 C900 700 900 600 850 500 L570 550 Z" fill="url(#cammo)" />
+  <circle cx="500" cy="500" r="60" fill="white" />
+</svg>`;
+
+const steeringWheelImg = new Image();
+steeringWheelImg.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(steeringWheelSvg)}`;
+
 // --- Constants ---
 const CANVAS_WIDTH = 400;
 const CANVAS_HEIGHT = 600;
@@ -76,6 +99,7 @@ export default function App() {
   const [distance, setDistance] = useState(0);
   const [showComodin, setShowComodin] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [activeControls, setActiveControls] = useState<{ [key: string]: boolean }>({});
 
   // Game Loop Refs
   const containerRef = useRef<HTMLDivElement>(null);
@@ -163,10 +187,12 @@ export default function App() {
 
   const handleControlStart = (key: string) => {
     keysRef.current[key] = true;
+    setActiveControls(prev => ({ ...prev, [key]: true }));
   };
 
   const handleControlEnd = (key: string) => {
     keysRef.current[key] = false;
+    setActiveControls(prev => ({ ...prev, [key]: false }));
   };
 
   const nextLevel = useCallback(() => {
@@ -816,28 +842,33 @@ export default function App() {
         {/* Mobile Controls */}
         {gameState === GameState.PLAYING && (
           <div className="absolute bottom-12 left-0 right-0 px-6 flex justify-between items-end z-20 pointer-events-none md:hidden">
-            {/* Left/Right Controls */}
-            <div className="flex gap-4 pointer-events-auto">
-              <button 
-                onMouseDown={() => handleControlStart('a')}
-                onMouseUp={() => handleControlEnd('a')}
-                onMouseLeave={() => handleControlEnd('a')}
-                onTouchStart={() => handleControlStart('a')}
-                onTouchEnd={() => handleControlEnd('a')}
-                className="w-16 h-16 bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 flex items-center justify-center active:scale-90 transition-transform"
+            {/* Steering Wheel Control */}
+            <div className="pointer-events-auto">
+              <motion.div 
+                className="relative w-36 h-36"
+                animate={{ rotate: activeControls['a'] ? -45 : activeControls['d'] ? 45 : 0 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 15 }}
               >
-                <ChevronLeft className="w-8 h-8" />
-              </button>
-              <button 
-                onMouseDown={() => handleControlStart('d')}
-                onMouseUp={() => handleControlEnd('d')}
-                onMouseLeave={() => handleControlEnd('d')}
-                onTouchStart={() => handleControlStart('d')}
-                onTouchEnd={() => handleControlEnd('d')}
-                className="w-16 h-16 bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 flex items-center justify-center active:scale-90 transition-transform"
-              >
-                <ChevronRight className="w-8 h-8" />
-              </button>
+                <img src={steeringWheelImg.src} className="w-full h-full object-contain drop-shadow-2xl" />
+                <div className="absolute inset-0 flex">
+                  <button 
+                    onMouseDown={() => handleControlStart('a')}
+                    onMouseUp={() => handleControlEnd('a')}
+                    onMouseLeave={() => handleControlEnd('a')}
+                    onTouchStart={() => handleControlStart('a')}
+                    onTouchEnd={() => handleControlEnd('a')}
+                    className="w-1/2 h-full rounded-l-full"
+                  />
+                  <button 
+                    onMouseDown={() => handleControlStart('d')}
+                    onMouseUp={() => handleControlEnd('d')}
+                    onMouseLeave={() => handleControlEnd('d')}
+                    onTouchStart={() => handleControlStart('d')}
+                    onTouchEnd={() => handleControlEnd('d')}
+                    className="w-1/2 h-full rounded-r-full"
+                  />
+                </div>
+              </motion.div>
             </div>
 
             {/* Accel/Brake Controls */}
