@@ -28,6 +28,27 @@ const llamaImg = new Image();
 llamaImg.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(llamaSvg)}`;
 const shrineImg = new Image();
 shrineImg.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(shrineSvg)}`;
+
+const comodinFireSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 130">
+  <path d="M50,130 C20,130 0,100 0,70 C0,40 15,10 50,0 C85,10 100,40 100,70 C100,100 80,130 50,130 Z" fill="#FFEB3B" />
+  <path d="M50,120 C30,120 10,95 10,70 C10,45 25,25 50,15 C75,25 90,45 90,70 C90,95 70,120 50,120 Z" fill="#F57C00" />
+  <path d="M50,110 C35,110 20,90 20,70 C20,50 35,35 50,25 C65,35 80,50 80,70 C80,90 65,110 50,110 Z" fill="#D32F2F" />
+  <path d="M50,10 L40,40 L50,35 L60,40 Z" fill="#FFEB3B" />
+  <path d="M25,30 L15,60 L25,55 L35,65 Z" fill="#F57C00" />
+  <path d="M75,30 L85,60 L75,55 L65,65 Z" fill="#F57C00" />
+  <path d="M50,40 C40,60 35,80 35,90 C35,100 45,110 50,110 C55,110 65,100 65,90 C65,80 60,60 50,40 Z" fill="#FFEB3B" />
+</svg>`;
+
+const comodinFireImg = new Image();
+comodinFireImg.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(comodinFireSvg)}`;
+
+const derrumbeSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 150">
+  <path d="M35,5 L15,35 L45,30 L35,60 L65,55 L55,85 L95,105 L85,135 L55,145 L25,130 L35,115 L5,125 L15,95 L0,85 L15,65 L5,45 L35,50 Z" fill="#a07850" stroke="#604020" stroke-width="4" stroke-linejoin="round" />
+</svg>`;
+
+const derrumbeImg = new Image();
+derrumbeImg.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(derrumbeSvg)}`;
+
 const playerCarImg = new Image();
 playerCarImg.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(playerCarSvg)}`;
 
@@ -567,21 +588,29 @@ export default function App() {
       const drawX = obs.x + curveShift;
 
       if (obs.type === 'Derrumbe') {
-        ctx.fillStyle = '#8b5a2b';
-        ctx.beginPath();
-        ctx.moveTo(drawX, obs.y + obs.height);
-        ctx.lineTo(drawX + obs.width/2, obs.y);
-        ctx.lineTo(drawX + obs.width, obs.y + obs.height);
-        ctx.fill();
+        if (level === Level.DESTAPADA) {
+          ctx.drawImage(derrumbeImg, drawX - 10, obs.y - 10, obs.width + 20, obs.height + 20);
+        } else {
+          ctx.fillStyle = '#8b5a2b';
+          ctx.beginPath();
+          ctx.moveTo(drawX, obs.y + obs.height);
+          ctx.lineTo(drawX + obs.width/2, obs.y);
+          ctx.lineTo(drawX + obs.width, obs.y + obs.height);
+          ctx.fill();
+        }
       } else if (obs.type === 'Fire') {
-        ctx.fillStyle = '#ff4400';
-        ctx.beginPath();
-        ctx.arc(drawX + obs.width/2, obs.y + obs.height/2, obs.width/2, 0, Math.PI*2);
-        ctx.fill();
-        ctx.fillStyle = '#ffcc00';
-        ctx.beginPath();
-        ctx.arc(drawX + obs.width/2, obs.y + obs.height/2, obs.width/4, 0, Math.PI*2);
-        ctx.fill();
+        if (level === Level.DESTAPADA) {
+          ctx.drawImage(comodinFireImg, drawX, obs.y - 10, obs.width, obs.height + 10);
+        } else {
+          ctx.fillStyle = '#ff4400';
+          ctx.beginPath();
+          ctx.arc(drawX + obs.width/2, obs.y + obs.height/2, obs.width/2, 0, Math.PI*2);
+          ctx.fill();
+          ctx.fillStyle = '#ffcc00';
+          ctx.beginPath();
+          ctx.arc(drawX + obs.width/2, obs.y + obs.height/2, obs.width/4, 0, Math.PI*2);
+          ctx.fill();
+        }
       } else if (obs.type === 'Llama') {
         // Adjust width/height for llama to maintain 1:1.4 aspect ratio
         if (obs.speedModifier && obs.speedModifier < 0) {
