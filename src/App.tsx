@@ -222,17 +222,23 @@ export default function App() {
     const touch = e.touches[0];
     const rect = e.currentTarget.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
+    const deadzone = 10; // Small deadzone to prevent flickering
     
-    if (touch.clientX < centerX) {
+    if (touch.clientX < centerX - deadzone) {
       // Steering left
       keysRef.current['a'] = true;
       keysRef.current['d'] = false;
       setActiveControls(prev => ({ ...prev, 'a': true, 'd': false }));
-    } else {
+    } else if (touch.clientX > centerX + deadzone) {
       // Steering right
       keysRef.current['a'] = false;
       keysRef.current['d'] = true;
       setActiveControls(prev => ({ ...prev, 'a': false, 'd': true }));
+    } else {
+      // Neutral
+      keysRef.current['a'] = false;
+      keysRef.current['d'] = false;
+      setActiveControls(prev => ({ ...prev, 'a': false, 'd': false }));
     }
   };
 
@@ -331,16 +337,6 @@ export default function App() {
       const roadLeft = roadCenterRef.current - ROAD_WIDTH / 2;
       const roadRight = roadLeft + ROAD_WIDTH - PLAYER_WIDTH;
       
-      // Level 2 Abyss Logic
-      if (gameState === GameState.PLAYING && level === Level.DESTAPADA && playerRef.current.x < roadLeft + 20) {
-          // Danger zone near river
-          if (Math.random() < 0.01) {
-              setLives(prev => prev - 1);
-              setSpeed(0);
-              playerRef.current.x = roadCenterRef.current;
-          }
-      }
-
       if (playerRef.current.x < roadLeft) playerRef.current.x = roadLeft;
       if (playerRef.current.x > roadRight) playerRef.current.x = roadRight;
 
