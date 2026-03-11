@@ -219,7 +219,9 @@ export default function App() {
   const handleSteeringTouch = (e: React.TouchEvent) => {
     if (gameState !== GameState.PLAYING) return;
     e.preventDefault();
-    const touch = e.touches[0];
+    if (e.targetTouches.length === 0) return;
+    
+    const touch = e.targetTouches[0];
     const rect = e.currentTarget.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const deadzone = 10; // Small deadzone to prevent flickering
@@ -244,9 +246,13 @@ export default function App() {
 
   const handleSteeringEnd = (e: React.TouchEvent) => {
     e.preventDefault();
-    keysRef.current['a'] = false;
-    keysRef.current['d'] = false;
-    setActiveControls(prev => ({ ...prev, 'a': false, 'd': false }));
+    if (e.targetTouches.length === 0) {
+      keysRef.current['a'] = false;
+      keysRef.current['d'] = false;
+      setActiveControls(prev => ({ ...prev, 'a': false, 'd': false }));
+    } else {
+      handleSteeringTouch(e);
+    }
   };
 
   const nextLevel = useCallback(() => {
