@@ -216,6 +216,32 @@ export default function App() {
     setActiveControls(prev => ({ ...prev, [key]: false }));
   };
 
+  const handleSteeringTouch = (e: React.TouchEvent) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const rect = e.currentTarget.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    
+    if (touch.clientX < centerX) {
+      // Steering left
+      keysRef.current['a'] = true;
+      keysRef.current['d'] = false;
+      setActiveControls(prev => ({ ...prev, a: true, d: false }));
+    } else {
+      // Steering right
+      keysRef.current['a'] = false;
+      keysRef.current['d'] = true;
+      setActiveControls(prev => ({ ...prev, a: false, d: true }));
+    }
+  };
+
+  const handleSteeringEnd = (e: React.TouchEvent) => {
+    e.preventDefault();
+    keysRef.current['a'] = false;
+    keysRef.current['d'] = false;
+    setActiveControls(prev => ({ ...prev, a: false, d: false }));
+  };
+
   const nextLevel = useCallback(() => {
     if (level === Level.CAMINO) {
       setGameState(GameState.WIN);
@@ -877,25 +903,14 @@ export default function App() {
                 className="relative w-28 h-28"
                 animate={{ rotate: activeControls['a'] ? -90 : activeControls['d'] ? 90 : 0 }}
                 transition={{ type: 'spring', stiffness: 250, damping: 20 }}
+                onTouchStart={handleSteeringTouch}
+                onTouchMove={handleSteeringTouch}
+                onTouchEnd={handleSteeringEnd}
               >
                 <img src={steeringWheelImg.src} className="w-full h-full object-contain drop-shadow-2xl" />
                 <div className="absolute inset-0 flex">
-                  <button 
-                    onMouseDown={() => handleControlStart('a')}
-                    onMouseUp={() => handleControlEnd('a')}
-                    onMouseLeave={() => handleControlEnd('a')}
-                    onTouchStart={(e) => { e.preventDefault(); handleControlStart('a'); }}
-                    onTouchEnd={(e) => { e.preventDefault(); handleControlEnd('a'); }}
-                    className="w-1/2 h-full rounded-l-full"
-                  />
-                  <button 
-                    onMouseDown={() => handleControlStart('d')}
-                    onMouseUp={() => handleControlEnd('d')}
-                    onMouseLeave={() => handleControlEnd('d')}
-                    onTouchStart={(e) => { e.preventDefault(); handleControlStart('d'); }}
-                    onTouchEnd={(e) => { e.preventDefault(); handleControlEnd('d'); }}
-                    className="w-1/2 h-full rounded-r-full"
-                  />
+                  <div className="w-1/2 h-full" />
+                  <div className="w-1/2 h-full" />
                 </div>
               </motion.div>
             </div>
