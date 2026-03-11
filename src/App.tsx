@@ -217,6 +217,7 @@ export default function App() {
   };
 
   const handleSteeringTouch = (e: React.TouchEvent) => {
+    if (gameState !== GameState.PLAYING) return;
     e.preventDefault();
     const touch = e.touches[0];
     const rect = e.currentTarget.getBoundingClientRect();
@@ -226,12 +227,12 @@ export default function App() {
       // Steering left
       keysRef.current['a'] = true;
       keysRef.current['d'] = false;
-      setActiveControls(prev => ({ ...prev, a: true, d: false }));
+      setActiveControls(prev => ({ ...prev, 'a': true, 'd': false }));
     } else {
       // Steering right
       keysRef.current['a'] = false;
       keysRef.current['d'] = true;
-      setActiveControls(prev => ({ ...prev, a: false, d: true }));
+      setActiveControls(prev => ({ ...prev, 'a': false, 'd': true }));
     }
   };
 
@@ -239,7 +240,7 @@ export default function App() {
     e.preventDefault();
     keysRef.current['a'] = false;
     keysRef.current['d'] = false;
-    setActiveControls(prev => ({ ...prev, a: false, d: false }));
+    setActiveControls(prev => ({ ...prev, 'a': false, 'd': false }));
   };
 
   const nextLevel = useCallback(() => {
@@ -898,20 +899,18 @@ export default function App() {
         {gameState === GameState.PLAYING && (
           <div className="absolute bottom-12 left-0 right-0 px-6 flex justify-between items-end z-20 pointer-events-none md:hidden">
             {/* Steering Wheel Control */}
-            <div className="pointer-events-auto">
+            <div 
+              className="pointer-events-auto relative w-28 h-28"
+              onTouchStart={handleSteeringTouch}
+              onTouchMove={handleSteeringTouch}
+              onTouchEnd={handleSteeringEnd}
+            >
               <motion.div 
-                className="relative w-28 h-28"
+                className="w-full h-full"
                 animate={{ rotate: activeControls['a'] ? -90 : activeControls['d'] ? 90 : 0 }}
                 transition={{ type: 'spring', stiffness: 250, damping: 20 }}
-                onTouchStart={handleSteeringTouch}
-                onTouchMove={handleSteeringTouch}
-                onTouchEnd={handleSteeringEnd}
               >
                 <img src={steeringWheelImg.src} className="w-full h-full object-contain drop-shadow-2xl" />
-                <div className="absolute inset-0 flex">
-                  <div className="w-1/2 h-full" />
-                  <div className="w-1/2 h-full" />
-                </div>
               </motion.div>
             </div>
 
