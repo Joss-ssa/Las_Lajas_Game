@@ -944,13 +944,15 @@ export default function App() {
       </div>
 
       {/* Narrative Footer */}
-      <div className="mt-8 max-w-md text-center">
-        <div className="text-xs uppercase tracking-[0.3em] opacity-30 mb-2">Narrativa</div>
-        <p className="text-sm italic opacity-60">
-          "Un turista devoto recorre los caminos hacia Ipiales, sorteando llamas y derrumbes, 
-          con la esperanza de encender sus velas ante la Virgen de Las Lajas."
-        </p>
-      </div>
+      {!isFullscreen && (
+        <div className="mt-8 max-w-md text-center hidden md:block">
+          <div className="text-xs uppercase tracking-[0.3em] opacity-30 mb-2">Narrativa</div>
+          <p className="text-sm italic opacity-60">
+            "Un turista devoto recorre los caminos hacia Ipiales, sorteando llamas y derrumbes, 
+            con la esperanza de encender sus velas ante la Virgen de Las Lajas."
+          </p>
+        </div>
+      )}
     </div>
   );
 }
